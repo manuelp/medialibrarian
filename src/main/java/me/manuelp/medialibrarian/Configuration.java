@@ -3,6 +3,7 @@ package me.manuelp.medialibrarian;
 import me.manuelp.medialibrarian.validations.Checks;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static fj.P.p;
 
@@ -21,6 +22,10 @@ public class Configuration {
 
   public Path getArchive() {
     return archive;
+  }
+
+  public Path getTagsFile() {
+    return Paths.get(archive.toString(), "tags.tgs");
   }
 
   @Override
