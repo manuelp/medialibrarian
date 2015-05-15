@@ -1,12 +1,19 @@
 package me.manuelp.medialibrarian;
 
+import fj.data.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import me.manuelp.medialibrarian.data.Action;
 import me.manuelp.medialibrarian.data.Configuration;
+import me.manuelp.medialibrarian.data.Tag;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Scanner;
+
+import static fj.data.List.list;
 
 public class Main {
   public static void main(String[] args) throws IOException,
@@ -16,7 +23,13 @@ public class Main {
     System.out.println("----[ MediaLibrarian welcomes you ]----");
     System.out.println("Configuration: " + conf.toString());
 
-    new MediaLibrarian(conf).process();
+    TagsRepository tagsRepository = new SimpleFileTagsRepository(conf
+        .getTagsFile().toFile());
+    MediaLibrarian librarian = new MediaLibrarian(conf, tagsRepository);
+
+    List<Path> files = librarian.findFiles(conf.getDir());
+    System.out.println("Found files: " + files.length());
+    processFiles(files, librarian);
   }
 
   private static Configuration readConfiguration(String[] args) {
@@ -40,5 +53,53 @@ public class Main {
 
     return new Configuration(Paths.get(fromOption.value(opts)),
         Paths.get(toOption.value(opts)));
+  }
+
+  private static void processFiles(List<Path> files, MediaLibrarian librarian)
+      throws InterruptedException, IOException {
+    for (Path file : files) {
+      librarian.showFile(file);
+      Action a = readAction("Do you wanna archive it? (y/n/d/q)");
+      processAction(file, a, librarian);
+    }
+  }
+
+  private static Action readAction(String message) {
+    System.out.println(message);
+    String input = new Scanner(System.in).nextLine();
+    switch (input) {
+    case "y":
+      return Action.ARCHIVE;
+    case "n":
+      return Action.SKIP;
+    case "d":
+      return Action.DELETE;
+    case "q":
+      return Action.QUIT;
+    default:
+      System.out.println("Sorry, I don't understand what you want.");
+      return readAction("Do you wanna archive it? (y/n/d/q)");
+    }
+  }
+
+  private static void processAction(Path file, Action a,
+      MediaLibrarian librarian) {
+    switch (a) {
+    case ARCHIVE:
+      librarian.archive(file,
+        readTags("Gimmie some tags, separated with commas: "));
+    case DELETE:
+      file.toFile().delete();
+    case SKIP:
+      break;
+    case QUIT:
+      System.exit(0);
+    }
+  }
+
+  private static List<Tag> readTags(String message) {
+    System.out.println(message);
+    String input = new Scanner(System.in).nextLine();
+    return list(input.split(",")).map(Tag::tag);
   }
 }
