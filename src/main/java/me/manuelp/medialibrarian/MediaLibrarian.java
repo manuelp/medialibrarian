@@ -3,6 +3,7 @@ package me.manuelp.medialibrarian;
 import fj.data.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import java.io.*;
 import java.nio.file.*;
@@ -15,7 +16,7 @@ import static fj.data.List.list;
 
 public class MediaLibrarian {
   private final static List<String> EXTENSIONS = list("mp4", "flv", "avi",
-      "mpg", "webm", "wmv");
+    "mpg", "webm", "wmv");
   private static final String VIDEO_PLAYER = "vlc";
   private static Configuration conf;
 
@@ -34,12 +35,25 @@ public class MediaLibrarian {
 
   private static Configuration readConfiguration(String[] args) {
     OptionParser parser = new OptionParser();
-    parser.accepts("from").withRequiredArg();
-    parser.accepts("to").withRequiredArg();
+    OptionSpec<String> fromOption = parser
+        .accepts("from", "Path of the root source directory tree.")
+        .withRequiredArg().required().ofType(String.class);
+    OptionSpec<String> toOption = parser
+        .accepts("to", "Path of the archive directory.").withRequiredArg()
+        .required().ofType(String.class);
+    OptionSpec<Void> help = parser.accepts("help").forHelp();
     OptionSet opts = parser.parse(args);
-    Path source = Paths.get((String) opts.valueOf("from"));
-    Path archive = Paths.get((String) opts.valueOf("to"));
-    return new Configuration(source, archive);
+    if (opts.has(help)) {
+      try {
+        parser.printHelpOn(System.out);
+        System.exit(0);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return new Configuration(Paths.get(fromOption.value(opts)),
+        Paths.get(toOption.value(opts)));
   }
 
   private static void processFiles(List<Path> files)
@@ -53,14 +67,14 @@ public class MediaLibrarian {
 
   private static void processAction(Path file, Action a) {
     switch (a) {
-      case ARCHIVE:
-        archive(file);
-      case DELETE:
-        file.toFile().delete();
-      case SKIP:
-        break;
-      case QUIT:
-        System.exit(0);
+    case ARCHIVE:
+      archive(file);
+    case DELETE:
+      file.toFile().delete();
+    case SKIP:
+      break;
+    case QUIT:
+      System.exit(0);
     }
   }
 
@@ -112,17 +126,17 @@ public class MediaLibrarian {
     System.out.println(message);
     String input = new Scanner(System.in).nextLine();
     switch (input) {
-      case "y":
-        return Action.ARCHIVE;
-      case "n":
-        return Action.SKIP;
-      case "d":
-        return Action.DELETE;
-      case "q":
-        return Action.QUIT;
-      default:
-        System.out.println("Sorry, I don't understand what you want.");
-        return readAction("Do you wanna archive it? (y/n/d/q)");
+    case "y":
+      return Action.ARCHIVE;
+    case "n":
+      return Action.SKIP;
+    case "d":
+      return Action.DELETE;
+    case "q":
+      return Action.QUIT;
+    default:
+      System.out.println("Sorry, I don't understand what you want.");
+      return readAction("Do you wanna archive it? (y/n/d/q)");
     }
   }
 
