@@ -1,4 +1,4 @@
-package me.manuelp.medialibrarian;
+package me.manuelp.medialibrarian.data;
 
 import fj.data.List;
 import me.manuelp.medialibrarian.validations.Checks;

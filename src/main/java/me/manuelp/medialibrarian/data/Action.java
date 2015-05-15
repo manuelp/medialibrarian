@@ -1,4 +1,4 @@
-package me.manuelp.medialibrarian;
+package me.manuelp.medialibrarian.data;
 
 public enum Action {
   ARCHIVE, SKIP, DELETE, QUIT
