@@ -1,6 +1,8 @@
 package me.manuelp.medialibrarian;
 
 import fj.data.List;
+import fj.data.Option;
+import fj.data.Set;
 import me.manuelp.medialibrarian.data.Configuration;
 import me.manuelp.medialibrarian.data.MediaFile;
 import me.manuelp.medialibrarian.data.Tag;
@@ -37,7 +39,6 @@ public class MediaLibrarian {
         return FileVisitResult.CONTINUE;
       }
     });
-    Collections.shuffle(files);
     return List.iterableList(files);
   }
 
@@ -51,7 +52,18 @@ public class MediaLibrarian {
     }
   }
 
-  public void archive(Path file, List<Tag> tags) {
+  public void showFiles(List<Path> files) {
+    List<String> tokens = files.map(Path::toAbsolutePath).map(Path::toString)
+        .cons(VIDEO_PLAYER);
+    ProcessBuilder pb = new ProcessBuilder(tokens.toJavaList());
+    try {
+      pb.start().waitFor();
+    } catch (InterruptedException | IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void archive(Path file, Set<Tag> tags) {
     tagsRepository.write(new MediaFile(file, tags));
     archiveFile(file);
   }
@@ -64,5 +76,16 @@ public class MediaLibrarian {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public List<Path> findByTags(Option<Set<Tag>> tags) {
+    return tagsRepository
+        .read()
+        .filter(
+          mf -> tags.isNone() || mf.getTags().intersect(tags.some()).isEmpty())
+        .map(MediaFile::getPath)
+        .map(
+          p -> Paths.get(conf.getArchive().toString(), p.getFileName()
+              .toString()));
   }
 }

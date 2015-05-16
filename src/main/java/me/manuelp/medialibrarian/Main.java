@@ -1,6 +1,9 @@
 package me.manuelp.medialibrarian;
 
+import fj.Ord;
 import fj.data.List;
+import fj.data.Option;
+import fj.data.Set;
 import jline.console.ConsoleReader;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -12,8 +15,7 @@ import me.manuelp.medialibrarian.data.Tag;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static fj.data.List.list;
+import java.util.Collections;
 
 public class Main {
   private static ConsoleReader console;
@@ -21,7 +23,7 @@ public class Main {
   public static void main(String[] args) throws IOException,
       InterruptedException {
     Configuration conf = readConfiguration(args);
-    console = createConsole();
+    console = new ConsoleReader();
 
     console.println("----[ MediaLibrarian welcomes you ]----");
     console.println("Configuration: " + conf.toString());
@@ -30,13 +32,15 @@ public class Main {
         .getTagsFile().toFile());
     MediaLibrarian librarian = new MediaLibrarian(conf, tagsRepository);
 
-    List<Path> files = librarian.findFiles(conf.getDir());
-    console.println("Found files: " + files.length());
-    processFiles(files, librarian);
-  }
-
-  private static ConsoleReader createConsole() throws IOException {
-    return new ConsoleReader();
+    if (conf.viewMode()) {
+      List<Path> files = shuffle(librarian.findByTags(conf.getTagsToView()));
+      console.println("Files to view: " + files.length());
+      librarian.showFiles(files);
+    } else {
+      List<Path> files = shuffle(librarian.findFiles(conf.getDir()));
+      console.println("Found files: " + files.length());
+      processFiles(files, librarian);
+    }
   }
 
   private static Configuration readConfiguration(String[] args) {
@@ -47,7 +51,13 @@ public class Main {
     OptionSpec<String> toOption = parser
         .accepts("to", "Path of the archive directory.").withRequiredArg()
         .required().ofType(String.class);
-    OptionSpec<Void> help = parser.accepts("help").forHelp();
+    OptionSpec<Void> help = parser.accepts("help", "Prints this help message.")
+        .forHelp();
+    OptionSpec<String> view = parser
+        .accepts(
+          "view",
+          "View archived files, optionally filtering them with tags (separated by commas).")
+        .withOptionalArg().withValuesSeparatedBy(",");
     OptionSet opts = parser.parse(args);
     if (opts.has(help)) {
       try {
@@ -58,8 +68,18 @@ public class Main {
       }
     }
 
+    Option<Set<Tag>> tagsToView = opts.has(view) ? Option.some(Set.iterableSet(
+      Ord.hashOrd(), view.values(opts)).map(Ord.hashOrd(), Tag::tag)) : Option
+        .none();
+
     return new Configuration(Paths.get(fromOption.value(opts)),
-        Paths.get(toOption.value(opts)));
+        Paths.get(toOption.value(opts)), tagsToView);
+  }
+
+  private static <V> List<V> shuffle(List<V> l) {
+    java.util.List<V> x = l.toJavaList();
+    Collections.shuffle(x);
+    return List.iterableList(x);
   }
 
   private static void processFiles(List<Path> files, MediaLibrarian librarian) {
@@ -109,13 +129,14 @@ public class Main {
     }
   }
 
-  private static List<Tag> readTags(String message) {
+  private static Set<Tag> readTags(String message) {
     String input;
     try {
       input = console.readLine(message);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return list(input.split(",")).map(Tag::tag);
+    return Set.set(Ord.stringOrd, input.split(","))
+        .map(Ord.hashOrd(), Tag::tag);
   }
 }

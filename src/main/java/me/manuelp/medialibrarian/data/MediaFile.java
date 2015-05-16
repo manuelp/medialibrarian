@@ -1,6 +1,6 @@
 package me.manuelp.medialibrarian.data;
 
-import fj.data.List;
+import fj.data.Set;
 import me.manuelp.medialibrarian.validations.Checks;
 
 import java.nio.file.Path;
@@ -9,9 +9,9 @@ import static fj.P.p;
 
 public class MediaFile {
   private final Path path;
-  private final List<Tag> tags;
+  private final Set<Tag> tags;
 
-  public MediaFile(Path path, List<Tag> tags) {
+  public MediaFile(Path path, Set<Tag> tags) {
     Checks.notNull(p("Path", path), p("Tags", tags));
     this.path = path;
     this.tags = tags;
@@ -21,7 +21,7 @@ public class MediaFile {
     return path;
   }
 
-  public List<Tag> getTags() {
+  public Set<Tag> getTags() {
     return tags;
   }
 
