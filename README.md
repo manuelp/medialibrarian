@@ -4,9 +4,10 @@ A CLI client to classify and archive media files.
 
 ## Changelog
 
-### 0.0.3-SNAPSHOT
+### 0.0.3
 
 * Added view option, can specify a set of tags to filter the archived files.
+* Prints the used tags when viewing.
 
 ### 0.0.2
 

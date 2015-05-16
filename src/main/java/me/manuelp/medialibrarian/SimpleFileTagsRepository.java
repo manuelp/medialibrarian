@@ -53,6 +53,13 @@ public class SimpleFileTagsRepository implements TagsRepository {
     return List.iterableList(files);
   }
 
+  @Override
+  public Set<Tag> listTags() {
+    List<Set<Tag>> x = read().map(mediaFile -> mediaFile.getTags());
+    Set<Tag> tags = x.foldLeft1(Set::union);
+    return tags;
+  }
+
   private String format(MediaFile mf) {
     String tags = mf.getTags().toList().map(Tag::getCode).intersperse(",")
         .foldLeft((a, b) -> a + b, "");

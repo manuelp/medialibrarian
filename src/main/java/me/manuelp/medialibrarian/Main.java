@@ -23,24 +23,34 @@ public class Main {
   public static void main(String[] args) throws IOException,
       InterruptedException {
     Configuration conf = readConfiguration(args);
-    console = new ConsoleReader();
+    console = new ConsoleReader(System.in, System.out);
 
     console.println("----[ MediaLibrarian welcomes you ]----");
     console.println("Configuration: " + conf.toString());
+    console.flush();
 
     TagsRepository tagsRepository = new SimpleFileTagsRepository(conf
         .getTagsFile().toFile());
     MediaLibrarian librarian = new MediaLibrarian(conf, tagsRepository);
 
     if (conf.viewMode()) {
+      Set<Tag> tags = tagsRepository.listTags();
+      console.println("Available tags: " + formatTags(tags));
       List<Path> files = shuffle(librarian.findByTags(conf.getTagsToView()));
       console.println("Files to view: " + files.length());
+      console.flush();
       librarian.showFiles(files);
     } else {
       List<Path> files = shuffle(librarian.findFiles(conf.getDir()));
       console.println("Found files: " + files.length());
+      console.flush();
       processFiles(files, librarian);
     }
+  }
+
+  private static String formatTags(Set<Tag> tags) {
+    return tags.toList().map(Tag::getCode).intersperse(",")
+        .foldLeft1((a, b) -> a + b);
   }
 
   private static Configuration readConfiguration(String[] args) {
