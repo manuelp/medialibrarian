@@ -55,13 +55,15 @@ public class Main {
         Paths.get(toOption.value(opts)));
   }
 
-  private static void processFiles(List<Path> files, MediaLibrarian librarian)
-      throws InterruptedException, IOException {
-    for (Path file : files) {
-      librarian.showFile(file);
-      Action a = readAction("Do you wanna archive it? (y/n/d/q)");
-      processAction(file, a, librarian);
-    }
+  private static void processFiles(List<Path> files, MediaLibrarian librarian) {
+    files.zipIndex().forEach(
+      p -> {
+        System.out.println(String.format("Processing file %d/%d: %s", p._2(),
+          files.length(), p._1().getFileName().toString()));
+        librarian.showFile(p._1());
+        Action a = readAction("Do you wanna archive it? (y/n/d/q)");
+        processAction(p._1(), a, librarian);
+      });
   }
 
   private static Action readAction(String message) {

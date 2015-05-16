@@ -41,10 +41,14 @@ public class MediaLibrarian {
     return List.iterableList(files);
   }
 
-  public void showFile(Path file) throws InterruptedException, IOException {
+  public void showFile(Path file) {
     ProcessBuilder pb = new ProcessBuilder(VIDEO_PLAYER, file.toAbsolutePath()
         .toString());
-    pb.start().waitFor();
+    try {
+      pb.start().waitFor();
+    } catch (InterruptedException | IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void archive(Path file, List<Tag> tags) {
