@@ -3,6 +3,7 @@ package me.manuelp.medialibrarian;
 import fj.Ord;
 import fj.data.List;
 import fj.data.Set;
+import me.manuelp.medialibrarian.data.Hash;
 import me.manuelp.medialibrarian.data.MediaFile;
 import me.manuelp.medialibrarian.data.Tag;
 
@@ -11,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import static me.manuelp.medialibrarian.data.Hash.hash;
 
 public class SimpleFileTagsRepository implements TagsRepository {
   private File tagsFile;
@@ -42,10 +45,11 @@ public class SimpleFileTagsRepository implements TagsRepository {
           .map(l -> l.split(":"))
           .map(
             t -> {
-              Path file = Paths.get(t[0]);
-              Set<Tag> tags = Set.set(Ord.stringOrd, t[1].split(",")).map(
+              Hash hash = hash(t[0]);
+              Path file = Paths.get(t[1]);
+              Set<Tag> tags = Set.set(Ord.stringOrd, t[2].split(",")).map(
                 Ord.hashOrd(), Tag::tag);
-              return new MediaFile(file, tags);
+              return new MediaFile(hash, file, tags);
             }).forEach(mf -> files.add(mf));
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -63,6 +67,7 @@ public class SimpleFileTagsRepository implements TagsRepository {
   private String format(MediaFile mf) {
     String tags = mf.getTags().toList().map(Tag::getCode).intersperse(",")
         .foldLeft((a, b) -> a + b, "");
-    return String.format("%s\t%s", mf.getPath().getFileName().toString(), tags);
+    return String.format("%s:%s:%s", mf.getHash().getString(), mf.getPath()
+        .getFileName().toString(), tags);
   }
 }

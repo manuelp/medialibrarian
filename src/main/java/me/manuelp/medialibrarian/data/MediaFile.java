@@ -8,13 +8,23 @@ import java.nio.file.Path;
 import static fj.P.p;
 
 public class MediaFile {
+  private final Hash hash;
   private final Path path;
   private final Set<Tag> tags;
 
   public MediaFile(Path path, Set<Tag> tags) {
-    Checks.notNull(p("Path", path), p("Tags", tags));
+    this(Hash.calculateHash().f(path), path, tags);
+  }
+
+  public MediaFile(Hash hash, Path path, Set<Tag> tags) {
+    Checks.notNull(p("Hash", hash), p("Path", path), p("Tags", tags));
+    this.hash = hash;
     this.path = path;
     this.tags = tags;
+  }
+
+  public Hash getHash() {
+    return hash;
   }
 
   public Path getPath() {
@@ -34,6 +44,8 @@ public class MediaFile {
 
     MediaFile mediaFile = (MediaFile) o;
 
+    if (!getHash().equals(mediaFile.getHash()))
+      return false;
     if (!getPath().equals(mediaFile.getPath()))
       return false;
     return getTags().equals(mediaFile.getTags());
@@ -42,13 +54,15 @@ public class MediaFile {
 
   @Override
   public int hashCode() {
-    int result = getPath().hashCode();
+    int result = getHash().hashCode();
+    result = 31 * result + getPath().hashCode();
     result = 31 * result + getTags().hashCode();
     return result;
   }
 
   @Override
   public String toString() {
-    return "MediaFile{" + "path=" + path + ", tags=" + tags + '}';
+    return "MediaFile{" + "hash=" + hash + ", path=" + path + ", tags=" + tags
+        + '}';
   }
 }
