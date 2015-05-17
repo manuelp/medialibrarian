@@ -16,6 +16,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 
 import static fj.data.List.list;
+import static me.manuelp.medialibrarian.logging.LogLevel.DEBUG;
+import static me.manuelp.medialibrarian.logging.LogLevel.INFO;
 
 public class MediaLibrarian {
   private final static List<String> EXTENSIONS = list("mp4", "flv", "avi",
@@ -33,6 +35,9 @@ public class MediaLibrarian {
   }
 
   public List<Path> findFiles(Path rootDir) throws IOException {
+    log.f(String.format(
+      "Searching for files with extensions %s from directory %s...",
+      EXTENSIONS.toString(), rootDir.toAbsolutePath().toString()), DEBUG);
     final ArrayList<Path> files = new ArrayList<>();
     Files.walkFileTree(rootDir, new SimpleFileVisitor<Path>() {
       @Override
@@ -71,22 +76,25 @@ public class MediaLibrarian {
   public void archive(Path file, Set<Tag> tags) {
     MediaFile mf = new MediaFile(file, tags);
     if (tagsRepository.alreadyContains(mf)) {
+      log.f(String.format("File already present, merging tags."), INFO);
       tagsRepository.update(mf);
       try {
         Files.delete(file);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
+      log.f("Deleted " + file.toString(), DEBUG);
     } else {
       tagsRepository.write(mf);
       archiveFile(file);
     }
   }
 
-  private static void archiveFile(Path file) {
+  private void archiveFile(Path file) {
     String archivePath = conf.getArchive().toString();
     String filename = file.getFileName().toString();
     try {
+      log.f(String.format("Moving %s -> %s", file, archivePath), DEBUG);
       Files.move(file, Paths.get(archivePath, filename));
     } catch (IOException e) {
       throw new RuntimeException(e);

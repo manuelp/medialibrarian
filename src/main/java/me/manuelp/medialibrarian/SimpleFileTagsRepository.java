@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import static me.manuelp.medialibrarian.data.Hash.hash;
+import static me.manuelp.medialibrarian.logging.LogLevel.TRACE;
 
 public class SimpleFileTagsRepository implements TagsRepository {
   private File tagsFile;
@@ -40,6 +41,7 @@ public class SimpleFileTagsRepository implements TagsRepository {
       throw new RuntimeException("Tags repository already contains this file: "
           + mf.getFilename());
 
+    log.f("Archiving " + mf.toString(), TRACE);
     PrintWriter out = null;
     try {
       out = new PrintWriter(new BufferedWriter(new FileWriter(tagsFile, true)));
