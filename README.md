@@ -8,6 +8,8 @@ A CLI client to classify and archive media files.
 
 * Fixed fields separator in tags file (:).
 * Added hash computing for every archived file.
+* Deduplication of archived files: the original archived copy of the file is maintained, tags are merged, and the
+  new file is deleted instead of moved.
 
 ### 0.0.3
 

@@ -63,8 +63,18 @@ public class MediaLibrarian {
   }
 
   public void archive(Path file, Set<Tag> tags) {
-    tagsRepository.write(new MediaFile(file, tags));
-    archiveFile(file);
+    MediaFile mf = new MediaFile(file, tags);
+    if (tagsRepository.alreadyContains(mf)) {
+      tagsRepository.update(mf);
+      try {
+        Files.delete(file);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      tagsRepository.write(mf);
+      archiveFile(file);
+    }
   }
 
   private static void archiveFile(Path file) {

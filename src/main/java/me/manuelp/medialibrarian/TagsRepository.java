@@ -11,4 +11,8 @@ public interface TagsRepository {
   List<MediaFile> read();
 
   Set<Tag> listTags();
+
+  boolean alreadyContains(MediaFile mf);
+
+  void update(MediaFile mf);
 }

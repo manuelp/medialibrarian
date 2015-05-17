@@ -31,8 +31,20 @@ public class MediaFile {
     return path;
   }
 
+  public String getFilename() {
+    return getPath().getFileName().toString();
+  }
+
   public Set<Tag> getTags() {
     return tags;
+  }
+
+  public boolean sameHash(MediaFile o) {
+    return getHash().equals(o.getHash());
+  }
+
+  public MediaFile mergeTags(MediaFile o) {
+    return new MediaFile(getHash(), getPath(), getTags().union(o.getTags()));
   }
 
   @Override

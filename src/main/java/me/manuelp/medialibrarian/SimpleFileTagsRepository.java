@@ -20,10 +20,21 @@ public class SimpleFileTagsRepository implements TagsRepository {
 
   public SimpleFileTagsRepository(File tagsFile) {
     this.tagsFile = tagsFile;
+    if(!tagsFile.exists()) {
+      try {
+        tagsFile.createNewFile();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   @Override
   public void write(MediaFile mf) {
+    if (alreadyContains(mf))
+      throw new RuntimeException("Tags repository already contains this file: "
+          + mf.getFilename());
+
     PrintWriter out = null;
     try {
       out = new PrintWriter(new BufferedWriter(new FileWriter(tagsFile, true)));
@@ -34,6 +45,18 @@ public class SimpleFileTagsRepository implements TagsRepository {
       if (out != null)
         out.close();
     }
+  }
+
+  @Override
+  public boolean alreadyContains(MediaFile mf) {
+    return read().filter(f -> f.sameHash(mf)).isNotEmpty();
+  }
+
+  private String format(MediaFile mf) {
+    String tags = mf.getTags().toList().map(Tag::getCode).intersperse(",")
+        .foldLeft((a, b) -> a + b, "");
+    return String.format("%s:%s:%s", mf.getHash().getString(), mf.getPath()
+        .getFileName().toString(), tags);
   }
 
   @Override
@@ -64,10 +87,24 @@ public class SimpleFileTagsRepository implements TagsRepository {
     return tags;
   }
 
-  private String format(MediaFile mf) {
-    String tags = mf.getTags().toList().map(Tag::getCode).intersperse(",")
-        .foldLeft((a, b) -> a + b, "");
-    return String.format("%s:%s:%s", mf.getHash().getString(), mf.getPath()
-        .getFileName().toString(), tags);
+  @Override
+  public void update(MediaFile mf) {
+    if (!alreadyContains(mf))
+      throw new RuntimeException("Unknown media file: " + mf.getFilename());
+    List<MediaFile> all = read().map(f -> f.sameHash(mf) ? f.mergeTags(mf) : f);
+    emptyFile(this.tagsFile);
+    writeAll(all);
+  }
+
+  private void emptyFile(File f) {
+    try {
+      new RandomAccessFile(f, "rw").setLength(0);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void writeAll(List<MediaFile> files) {
+    files.foreachDoEffect(f -> write(f));
   }
 }
