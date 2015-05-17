@@ -4,7 +4,7 @@ A CLI client to classify and archive media files.
 
 ## Changelog
 
-### 0.0.4-SNAPSHOT
+### 0.0.4
 
 * Fixed fields separator in tags file (:).
 * Added hash computing for every archived file.

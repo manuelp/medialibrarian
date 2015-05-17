@@ -6,7 +6,7 @@
 
     <groupId>me.manuelp</groupId>
     <artifactId>medialibrarian</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
 
     <properties>
         <jdk.version>1.8</jdk.version>
