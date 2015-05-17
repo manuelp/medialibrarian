@@ -9,14 +9,19 @@ import java.time.format.DateTimeFormatter;
 
 public class ConsoleLoggerBuilder implements LoggerBuilder {
   private ConsoleReader console;
+  private LogLevel minimum;
 
-  public ConsoleLoggerBuilder(ConsoleReader console) {
+  public ConsoleLoggerBuilder(ConsoleReader console, LogLevel minimum) {
     this.console = console;
+    this.minimum = minimum;
   }
 
   @Override
   public Effect2<String, LogLevel> logger(String subject) {
-    return (s, l) -> printToConsole(subject, LocalDateTime.now(), l, s);
+    return (s, l) -> {
+      if (l.compareTo(minimum) >= 0)
+        printToConsole(subject, LocalDateTime.now(), l, s);
+    };
   }
 
   @Override

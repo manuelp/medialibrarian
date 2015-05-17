@@ -29,7 +29,8 @@ public class Main {
       InterruptedException {
     Configuration conf = readConfiguration(args);
     console = new ConsoleReader(System.in, System.out);
-    LoggerBuilder loggerBuilder = new ConsoleLoggerBuilder(console);
+    LoggerBuilder loggerBuilder = new ConsoleLoggerBuilder(console,
+        LogLevel.DEBUG);
     log = loggerBuilder.logger(Main.class);
 
     console.println("----[ MediaLibrarian welcomes you ]----");
