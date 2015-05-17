@@ -3,9 +3,12 @@ package me.manuelp.medialibrarian;
 import fj.Ord;
 import fj.data.List;
 import fj.data.Set;
+import fj.function.Effect2;
 import me.manuelp.medialibrarian.data.Hash;
 import me.manuelp.medialibrarian.data.MediaFile;
 import me.manuelp.medialibrarian.data.Tag;
+import me.manuelp.medialibrarian.logging.LogLevel;
+import me.manuelp.medialibrarian.logging.LoggerBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -17,10 +20,12 @@ import static me.manuelp.medialibrarian.data.Hash.hash;
 
 public class SimpleFileTagsRepository implements TagsRepository {
   private File tagsFile;
+  private final Effect2<String, LogLevel> log;
 
-  public SimpleFileTagsRepository(File tagsFile) {
+  public SimpleFileTagsRepository(File tagsFile, LoggerBuilder loggerBuilder) {
+    this.log = loggerBuilder.logger(this);
     this.tagsFile = tagsFile;
-    if(!tagsFile.exists()) {
+    if (!tagsFile.exists()) {
       try {
         tagsFile.createNewFile();
       } catch (IOException e) {

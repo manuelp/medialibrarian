@@ -3,9 +3,12 @@ package me.manuelp.medialibrarian;
 import fj.data.List;
 import fj.data.Option;
 import fj.data.Set;
+import fj.function.Effect2;
 import me.manuelp.medialibrarian.data.Configuration;
 import me.manuelp.medialibrarian.data.MediaFile;
 import me.manuelp.medialibrarian.data.Tag;
+import me.manuelp.medialibrarian.logging.LogLevel;
+import me.manuelp.medialibrarian.logging.LoggerBuilder;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -20,10 +23,13 @@ public class MediaLibrarian {
   private static final String VIDEO_PLAYER = "vlc";
   private static Configuration conf;
   private TagsRepository tagsRepository;
+  private final Effect2<String, LogLevel> log;
 
-  public MediaLibrarian(Configuration conf, TagsRepository tagsRepository) {
+  public MediaLibrarian(Configuration conf, TagsRepository tagsRepository,
+      LoggerBuilder loggerBuilder) {
     this.conf = conf;
     this.tagsRepository = tagsRepository;
+    this.log = loggerBuilder.logger(this);
   }
 
   public List<Path> findFiles(Path rootDir) throws IOException {

@@ -4,6 +4,7 @@ import fj.Ord;
 import fj.data.List;
 import fj.data.Option;
 import fj.data.Set;
+import fj.function.Effect2;
 import jline.console.ConsoleReader;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -11,6 +12,9 @@ import joptsimple.OptionSpec;
 import me.manuelp.medialibrarian.data.Action;
 import me.manuelp.medialibrarian.data.Configuration;
 import me.manuelp.medialibrarian.data.Tag;
+import me.manuelp.medialibrarian.logging.ConsoleLoggerBuilder;
+import me.manuelp.medialibrarian.logging.LogLevel;
+import me.manuelp.medialibrarian.logging.LoggerBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -19,19 +23,23 @@ import java.util.Collections;
 
 public class Main {
   private static ConsoleReader console;
+  private static Effect2<String, LogLevel> log;
 
   public static void main(String[] args) throws IOException,
       InterruptedException {
     Configuration conf = readConfiguration(args);
     console = new ConsoleReader(System.in, System.out);
+    LoggerBuilder loggerBuilder = new ConsoleLoggerBuilder(console);
+    log = loggerBuilder.logger(Main.class);
 
     console.println("----[ MediaLibrarian welcomes you ]----");
     console.println("Configuration: " + conf.toString());
     console.flush();
 
     TagsRepository tagsRepository = new SimpleFileTagsRepository(conf
-        .getTagsFile().toFile());
-    MediaLibrarian librarian = new MediaLibrarian(conf, tagsRepository);
+        .getTagsFile().toFile(), loggerBuilder);
+    MediaLibrarian librarian = new MediaLibrarian(conf, tagsRepository,
+        loggerBuilder);
 
     if (conf.viewMode()) {
       Set<Tag> tags = tagsRepository.listTags();
