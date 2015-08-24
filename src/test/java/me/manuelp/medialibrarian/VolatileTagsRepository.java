@@ -6,14 +6,21 @@ import me.manuelp.medialibrarian.data.MediaFile;
 import me.manuelp.medialibrarian.data.Tag;
 
 public class VolatileTagsRepository implements TagsRepository {
+
+  private List<MediaFile> files;
+
+  public VolatileTagsRepository() {
+    files = List.list();
+  }
+
   @Override
   public void write(MediaFile mf) {
-
+    files = files.cons(mf);
   }
 
   @Override
   public List<MediaFile> read() {
-    return List.list();
+    return files;
   }
 
   @Override
@@ -23,11 +30,14 @@ public class VolatileTagsRepository implements TagsRepository {
 
   @Override
   public boolean alreadyContains(MediaFile mf) {
-    return false;
+    return files.exists(f -> f.equals(mf));
   }
 
   @Override
   public void update(MediaFile mf) {
-
+    if(!alreadyContains(mf))
+      throw new RuntimeException("Tags repository already contains this file: "
+                                 + mf.getFilename());
+    files = files.map(f -> f.sameHash(mf) ? f.mergeTags(mf) : f);
   }
 }
