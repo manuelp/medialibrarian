@@ -78,7 +78,7 @@ public class SimpleFileTagsRepository implements TagsRepository {
               Hash hash = hash(t[0]);
               Path file = Paths.get(t[1]);
               Set<Tag> tags = Set.set(Ord.stringOrd, t[2].split(",")).map(
-                Ord.hashOrd(), Tag::tag);
+                  Tag.ord(), Tag::tag);
               return new MediaFile(hash, file, tags);
             }).forEach(mf -> files.add(mf));
     } catch (IOException e) {

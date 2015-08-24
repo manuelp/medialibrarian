@@ -1,5 +1,6 @@
 package me.manuelp.medialibrarian.data;
 
+import fj.Ord;
 import me.manuelp.medialibrarian.validations.Checks;
 
 public class Tag {
@@ -12,6 +13,10 @@ public class Tag {
 
   public static Tag tag(String code) {
     return new Tag(code);
+  }
+
+  public static Ord<Tag> ord() {
+    return Ord.hashOrd();
   }
 
   public String getCode() {
