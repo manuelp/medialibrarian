@@ -39,7 +39,7 @@ public class SimpleFileTagsRepository implements TagsRepository {
   public void write(MediaFile mf) {
     if (alreadyContains(mf))
       throw new RuntimeException("Tags repository already contains this file: "
-          + mf.getFilename());
+                                 + mf.getFilename());
 
     log.f("Archiving " + mf.toString(), TRACE);
     PrintWriter out = null;
@@ -61,9 +61,9 @@ public class SimpleFileTagsRepository implements TagsRepository {
 
   private String format(MediaFile mf) {
     String tags = mf.getTags().toList().map(Tag::getCode).intersperse(",")
-        .foldLeft((a, b) -> a + b, "");
+                    .foldLeft((a, b) -> a + b, "");
     return String.format("%s:%s:%s", mf.getHash().getString(), mf.getPath()
-        .getFileName().toString(), tags);
+                                                                 .getFileName().toString(), tags);
   }
 
   @Override
@@ -74,13 +74,13 @@ public class SimpleFileTagsRepository implements TagsRepository {
           .lines(tagsFile.toPath())
           .map(l -> l.split(":"))
           .map(
-            t -> {
-              Hash hash = hash(t[0]);
-              Path file = Paths.get(t[1]);
-              Set<Tag> tags = Set.set(Ord.stringOrd, t[2].split(",")).map(
-                  Tag.ord(), Tag::tag);
-              return new MediaFile(hash, file, tags);
-            }).forEach(mf -> files.add(mf));
+              t -> {
+                Hash hash = hash(t[0]);
+                Path file = Paths.get(t[1]);
+                Set<Tag> tags = Set.set(Ord.stringOrd, t[2].split(",")).map(
+                    Tag.ord(), Tag::tag);
+                return new MediaFile(hash, file, tags);
+              }).forEach(files::add);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -89,9 +89,8 @@ public class SimpleFileTagsRepository implements TagsRepository {
 
   @Override
   public Set<Tag> listTags() {
-    List<Set<Tag>> x = read().map(mediaFile -> mediaFile.getTags());
-    Set<Tag> tags = x.foldLeft1(Set::union);
-    return tags;
+    List<Set<Tag>> x = read().map(MediaFile::getTags);
+    return x.foldLeft1(Set::union);
   }
 
   @Override
@@ -112,6 +111,6 @@ public class SimpleFileTagsRepository implements TagsRepository {
   }
 
   private void writeAll(List<MediaFile> files) {
-    files.foreachDoEffect(f -> write(f));
+    files.foreachDoEffect(this::write);
   }
 }
