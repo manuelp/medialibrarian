@@ -5,9 +5,12 @@ A CLI client to classify and archive media files.
 ## Changelog
 
 ### 0.1-SNAPSHOT
-
-* Added simple functional logging framework.
+#### Fix
 * Fixed view by tags
+
+#### Changes
+* Added simple functional logging framework.
+* Upgrade to FunctionalJava 4.6
 
 ### 0.0.4
 
@@ -29,3 +32,7 @@ A CLI client to classify and archive media files.
 ### 0.0.1
 
 First release with basic functionality for viewing, tagging and archiving video files.
+
+## Compile
+
+Just use Maven: `mvn package`.
