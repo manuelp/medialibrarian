@@ -4,7 +4,7 @@ A CLI client to classify and archive media files.
 
 ## Changelog
 
-### 0.1-SNAPSHOT
+### 0.1
 #### Fix
 * Fixed view by tags
 
