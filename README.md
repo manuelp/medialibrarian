@@ -7,6 +7,7 @@ A CLI client to classify and archive media files.
 ### 0.1-SNAPSHOT
 
 * Added simple functional logging framework.
+* Fixed view by tags
 
 ### 0.0.4
 

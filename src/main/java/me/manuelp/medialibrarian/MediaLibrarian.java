@@ -20,11 +20,11 @@ import static me.manuelp.medialibrarian.logging.LogLevel.DEBUG;
 import static me.manuelp.medialibrarian.logging.LogLevel.INFO;
 
 public class MediaLibrarian {
-  private final static List<String> EXTENSIONS = list("mp4", "flv", "avi",
-                                                      "mpg", "webm", "wmv");
-  private static final String VIDEO_PLAYER = "vlc";
-  private Configuration conf;
-  private TagsRepository tagsRepository;
+  private final static List<String> EXTENSIONS   = list("mp4", "flv", "avi",
+                                                        "mpg", "webm", "wmv");
+  private static final String       VIDEO_PLAYER = "vlc";
+  private       Configuration             conf;
+  private       TagsRepository            tagsRepository;
   private final Effect2<String, LogLevel> log;
 
   public MediaLibrarian(Configuration conf, TagsRepository tagsRepository,
@@ -53,8 +53,8 @@ public class MediaLibrarian {
   }
 
   public void showFile(Path file) {
-    ProcessBuilder pb = new ProcessBuilder(VIDEO_PLAYER, file.toAbsolutePath()
-                                                             .toString());
+    ProcessBuilder pb = new ProcessBuilder(VIDEO_PLAYER,
+                                           file.toAbsolutePath().toString());
     try {
       pb.start().waitFor();
     } catch (InterruptedException | IOException e) {
@@ -92,7 +92,7 @@ public class MediaLibrarian {
 
   private void archiveFile(Path file) {
     String archivePath = conf.getArchive().toString();
-    String filename = file.getFileName().toString();
+    String filename    = file.getFileName().toString();
     try {
       log.f(String.format("Moving %s -> %s", file, archivePath), DEBUG);
       Files.move(file, Paths.get(archivePath, filename));
@@ -102,13 +102,9 @@ public class MediaLibrarian {
   }
 
   public List<Path> findByTags(Option<Set<Tag>> tags) {
-    return tagsRepository
-        .read()
-        .filter(
-            mf -> tags.isNone() || mf.getTags().intersect(tags.some()).isEmpty())
-        .map(MediaFile::getPath)
-        .map(
-            p -> Paths.get(conf.getArchive().toString(), p.getFileName()
-                                                          .toString()));
+    return tagsRepository.read().filter(
+        mf -> tags.isNone() || tags.some().subsetOf(mf.getTags())).map(
+        MediaFile::getPath).map(p -> Paths
+        .get(conf.getArchive().toString(), p.getFileName().toString()));
   }
 }
