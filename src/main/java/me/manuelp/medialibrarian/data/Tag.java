@@ -16,7 +16,7 @@ public class Tag {
   }
 
   public static Ord<Tag> ord() {
-    return Ord.hashOrd();
+    return Ord.stringOrd.contramap(Tag::getCode);
   }
 
   public String getCode() {
@@ -25,10 +25,8 @@ public class Tag {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
 
     Tag tag = (Tag) o;
 

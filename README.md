@@ -3,6 +3,8 @@
 A CLI client to classify and archive media files.
 
 ## Changelog
+### 0.1.1 (2017-04-01)
+Upgraded dependencies.
 
 ### 0.1
 #### Fix
