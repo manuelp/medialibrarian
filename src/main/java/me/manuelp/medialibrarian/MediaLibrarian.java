@@ -22,7 +22,6 @@ import static me.manuelp.medialibrarian.logging.LogLevel.INFO;
 public class MediaLibrarian {
   private final static List<String> EXTENSIONS   = list("mp4", "flv", "avi",
                                                         "mpg", "webm", "wmv");
-  private static final String       VIDEO_PLAYER = "vlc";
   private       Configuration             conf;
   private       TagsRepository            tagsRepository;
   private final Effect2<String, LogLevel> log;
@@ -53,7 +52,7 @@ public class MediaLibrarian {
   }
 
   public void showFile(Path file) {
-    ProcessBuilder pb = new ProcessBuilder(VIDEO_PLAYER,
+    ProcessBuilder pb = new ProcessBuilder(conf.getVideoPlayer(),
                                            file.toAbsolutePath().toString());
     try {
       pb.start().waitFor();
@@ -64,7 +63,7 @@ public class MediaLibrarian {
 
   public void showFiles(List<Path> files) {
     List<String> tokens = files.map(Path::toAbsolutePath).map(Path::toString)
-                               .cons(VIDEO_PLAYER);
+                               .cons(conf.getVideoPlayer());
     ProcessBuilder pb = new ProcessBuilder(tokens.toJavaList());
     try {
       pb.start().waitFor();

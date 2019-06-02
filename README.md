@@ -5,6 +5,7 @@ A CLI client to classify and archive media files.
 ## Changelog
 ### 0.2
 * Upgrade to Java 10 and FJ 4.8.
+* Configurable video player (using the `VIDEO_PLAYER` environment variable, default: `vlc`).
 
 ### 0.1.1 (2017-04-01)
 Upgraded dependencies.
