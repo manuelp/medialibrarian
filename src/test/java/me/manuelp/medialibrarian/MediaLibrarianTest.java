@@ -72,7 +72,7 @@ public class MediaLibrarianTest {
   @Test
   public void should_walk_inbox_tree_to_find_files_with_known_extension() throws IOException {
     TagsRepository repo = new VolatileTagsRepository();
-    Configuration conf = new Configuration(inbox, archive, Option.none());
+    Configuration conf = new Configuration("vlc", inbox, archive, Option.none());
     MediaLibrarian mediaLibrarian = new MediaLibrarian(conf, repo, loggerBuilder);
 
     List<Path> files = mediaLibrarian.findFiles(inbox);
