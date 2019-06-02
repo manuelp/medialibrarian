@@ -6,17 +6,17 @@
 
     <groupId>me.manuelp</groupId>
     <artifactId>medialibrarian</artifactId>
-    <version>0.1.1</version>
+    <version>0.2</version>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
+        <jdk.version>10</jdk.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.functionaljava</groupId>
             <artifactId>functionaljava</artifactId>
-            <version>4.7</version>
+            <version>4.8</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
